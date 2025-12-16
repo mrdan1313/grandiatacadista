@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grandi Atacadista - Atacado de perfumaria e cosméticos para revendedores</title>
+    <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Define a fonte Inter e cores base */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f7f7f9; /* Fundo cinza claro */
+        }
+        /* Configuração de cores azuis do Tailwind (usando 'indigo' e 'blue') */
+        .header-bg {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* indigo-600 */
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca; /* indigo-700 */
+        }
+        /* Ícone do carrinho flutuante - Posicionamento mantido, mas ajustado para o novo rodapé */
+        .cart-icon { 
+            position: fixed; 
+            bottom: 24px; /* Ajustado para ficar acima do rodapé, mas não tão alto */
+            right: 24px; 
+            background-color: #3b82f6; /* blue-500 */
+            color: white; 
+            padding: 16px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25); 
+            z-index: 100;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-icon:hover {
+            transform: scale(1.1);
+        }
+        /* Estilização para o preço em destaque */
+        .price-text {
+            color: #1d4ed8; /* blue-700 */
+        }
+
+        /* Estilo para o pop-up rápido (toast) */
+        .toast-popup {
+            position: fixed;
+            bottom: 100px; /* Ajustado para não colidir com o ícone flutuante */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981; /* green-500 */
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            font-weight: 600;
+            text-align: center;
+            max-width: 90%;
+        }
+        .toast-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Estilo para o botão fixo de Ação do Carrinho (Ex: Encaminhar Pedido) */
+        .whatsapp-fixed-btn-container {
+            position: fixed;
+            bottom: 70px; /* Ajustado para ficar visível, mas não cobrir o rodapé */
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background-color: white;
+            padding: 16px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+        }
+        .whatsapp-fixed-btn {
+            background-color: #3b82f6; /* blue-500 */
+            transition: background-color 0.2s;
+        }
+        .whatsapp-fixed-btn:hover {
+            background-color: #2563eb; /* blue-600 */
+        }
+        
+        /* Estilo para o rodapé profissional (Final do Scroll, compacto) */
+        footer {
+            z-index: 10;
+            background-color: #1f2937; /* gray-800 */
+            color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Sombra mais sutil */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho Principal (Azul) - Nova Identidade -->
+    <header class="header-bg text-white py-4 shadow-lg sticky top-0 z-40">
+        <div class="container mx-auto px-4 flex justify-between items-center flex-wrap">
+            <div>
+                <h1 class="text-2xl font-extrabold">Grandi Atacadista</h1>
+                <p class="text-xs text-blue-200 mt-1">Atacado de perfumaria e cosméticos para revendedores</p>
+            </div>
+            
+            <!-- Navegação SPA -->
+            <nav class="space-x-4 flex items-center mt-3 sm:mt-0">
+                <button id="nav-products" class="font-semibold transition hover:text-indigo-200 border-b-2 border-transparent pb-1" onclick="switchPage('products')">Produtos</button>
+                <button id="nav-cart" class="font-semibold transition hover:text-indigo-200 border-b-2 border-transparent pb-1" onclick="switchPage('cart')">Carrinho</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Container do Conteúdo SPA (Centralizado) -->
+    <!-- Garante que o conteúdo empurre o rodapé para o final da página -->
+    <div id="app-container" class="container mx-auto px-4 py-8 max-w-3xl min-h-[calc(100vh-100px)]">
+        <!-- O conteúdo (Lista de Produtos ou Carrinho) será inserido aqui pelo JS -->
+    </div>
+
+    <!-- Rodapé Profissional (Final do Scroll, compacto e discreto) -->
+    <footer class="py-4 px-4 mt-8"> 
+        <div class="container mx-auto max-w-4xl text-sm">
+            <!-- Linha Principal de Informações (Mais compacta) -->
+            <div class="flex flex-wrap justify-between items-center text-gray-300 border-b border-gray-700 pb-2 mb-2">
+                
+                <!-- WhatsApp Clicável -->
+                <div class="flex items-center space-x-2 w-full sm:w-auto mb-2 sm:mb-0">
+                    <span class="font-bold text-blue-300">WhatsApp:</span>
+                    <a href="https://wa.me/5548998765432" target="_blank" class="hover:text-blue-200 transition">
+                        (48) 99876-5432
+                    </a>
+                </div>
+                
+                <!-- SAC -->
+                <div class="flex items-center space-x-2 w-full sm:w-auto mb-2 sm:mb-0">
+                    <span class="font-bold text-blue-300">SAC:</span>
+                    <a href="mailto:sac@grandiatacadista.com.br" class="hover:text-blue-200 transition truncate">
+                        sac@grandiatacadista.com.br
+                    </a>
+                </div>
+
+                <!-- Horário -->
+                <div class="w-full sm:w-auto">
+                    <span class="font-bold text-blue-300">Horário:</span> Seg a Sex – 08h às 18h
+                </div>
+            </div>
+
+            <!-- Endereço e Texto Institucional -->
+            <div class="text-gray-400">
+                 <!-- Endereço (Resumido) -->
+                <p class="mb-1">
+                    <span class="font-bold text-blue-300">Endereço:</span> Rua Exemplo, 123 – Centro – Cidade/UF
+                </p>
+                
+                <!-- Texto Institucional Curto -->
+                <p class="text-xs mt-2">
+                    A Grandi Atacadista é especializada no fornecimento de perfumaria e cosméticos no atacado para revendedores.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Ícone flutuante para o Carrinho (Contador e Ação) -->
+    <div id="cart-float-icon" class="cart-icon" onclick="switchPage('cart')">
+        <!-- Badge Contador (Visível) -->
+        <span id="cart-counter" class="absolute top-0 right-0 inline-flex items-center justify-center w-6 h-6 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+    </div>
+
+    <!-- Pop-up de Confirmação (Toast Rápido e Automático) -->
+    <div id="toast-popup" class="toast-popup">
+        Produto adicionado ao carrinho
+    </div>
+
+
+    <!-- Script para a lógica de Produtos, Carrinho e SPA -->
+    <script>
+        // --- DADOS DO PRODUTO (Mínimo 20 itens) ---
+        
+        // **********************************************************************************************
+        // ATENÇÃO: SUBSTITUA AS URLs DE EXEMPLO (IMAGENS MOCKADAS) ABAIXO PELAS SUAS PRÓPRIAS URLs PÚBLICAS (600x600).
+        // Se a URL estiver vazia (''), o sistema usará o placeholder colorido automaticamente.
+        // **********************************************************************************************
+        const productsData = [
+            // Perfumes (IDs P001-P005 e P021)
+            { 
+                id: 'P001', 
+                name: 'Desodorante Dove (100ml)', 
+                desc: 'Notas de sândalo e jasmim. Fragrância de longa duração.', 
+                category: 'Perfumes', 
+                price: 9.75, 
+                img_color: 'a9a0f7', 
+                img_text: 'PERFUME',
+                img_real_url: 'data:image/jpeg;base64,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' 
+            },
+            { 
+                id: 'P002', 
+                name: 'Shampoo Pantene Equilibrio (350ml)', 
+                desc: 'Ideal para o dia, com notas de limão siciliano e hortelã.', 
+                category: 'Perfumes', 
+                price: 11.40, 
+                img_color: 'a9a0f7', 
+                img_text: 'PERFUME',
+                img_real_url: 'data:image/jpeg;base64,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' 
+            },
+            { 
+                id: 'P003', 
+                name: 'Rexona Clinical', 
+                desc: 'Intenso e sedutor, com toques de baunilha e especiarias.', 
+                category: 'Perfumes', 
+                price: 7.75, 
+                img_color: 'a9a0f7', 
+                img_text: 'PERFUME',
+                img_real_url: 'data:image/jpeg;base64,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' 
+            },
+            { 
+                id: 'P004', 
+                name: 'Shmapoo SEDA liso', 
+                desc: 'Fragrância leve para refrescar o corpo após o banho.', 
+                category: 'Perfumes', 
+                price: 9.50, 
+                img_color: 'a9a0f7', 
+                img_text: 'PERFUME',
+                img_real_url: 'data:image/jpeg;base64,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' 
+            },
+            { 
+                id: 'P005', 
+                name: 'Perfume Floral Delicado', 
+                desc: 'Composição suave de rosas e peônias, muito feminino.', 
+                category: 'Perfumes', 
+                price: 149.50, 
+                img_color: 'a9a0f7', 
+                img_text: 'PERFUME',
+                img_real_url: 'https://images.unsplash.com/photo-1558133513-431520625447?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            
+            // Hidratantes (IDs H006-H009 e H022)
+            { 
+                id: 'H006', 
+                name: 'Hidratante Corporal Lavanda (Atacado)', 
+                desc: 'Fórmula de rápida absorção para acalmar a pele. 250g.', 
+                category: 'Hidratantes', 
+                price: 29.95, 
+                img_color: 'd1e5ff', 
+                img_text: 'HIDRATANTE',
+                img_real_url: 'https://images.unsplash.com/photo-1616453715201-9c84918f6c5e?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'H007', 
+                name: 'Creme Mãos Manteiga de Karité (Atacado)', 
+                desc: 'Reparação intensa para mãos ressecadas, sem deixar oleoso.', 
+                category: 'Hidratantes', 
+                price: 17.50, 
+                img_color: 'd1e5ff', 
+                img_text: 'CREME',
+                img_real_url: 'https://images.unsplash.com/photo-1557827827-023a9d701048?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'H008', 
+                name: 'Loção Corporal Vitamina C (Atacado)', 
+                desc: 'Promove hidratação e luminosidade, ideal para uso diário.', 
+                category: 'Hidratantes', 
+                price: 39.95, 
+                img_color: 'd1e5ff', 
+                img_text: 'LOÇÃO',
+                img_real_url: 'https://images.unsplash.com/photo-1627384151756-32d733b49911?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'H009', 
+                name: 'Manteiga Corporal Noturna', 
+                desc: 'Tratamento ultra-hidratante para peles muito secas.', 
+                category: 'Hidratantes', 
+                price: 47.50, 
+                img_color: 'd1e5ff', 
+                img_text: 'MANTEIGA',
+                img_real_url: 'https://images.unsplash.com/photo-1544837330-22c6081e6cc4?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            
+            // Shampoos (IDs S010-S013)
+            { 
+                id: 'S010', 
+                name: 'Shampoo Detox e Nutrição (Litro)', 
+                desc: 'Limpeza profunda e nutrição para cabelos oleosos. 1L.', 
+                category: 'Capilar', 
+                price: 45.00, 
+                img_color: 'c7d2fe', 
+                img_text: 'SHAMPOO',
+                img_real_url: 'https://images.unsplash.com/photo-1583947215259-b1b590e0c800?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'S011', 
+                name: 'Condicionador Brilho Extremo (Litro)', 
+                desc: 'Fórmula que sela as cutículas, proporcionando máximo brilho.', 
+                category: 'Capilar', 
+                price: 48.00, 
+                img_color: 'c7d2fe', 
+                img_text: 'CONDIC',
+                img_real_url: 'https://images.unsplash.com/photo-1620740924151-24879203901b?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'S012', 
+                name: 'Máscara Capilar Reconstrutora', 
+                desc: 'Repara danos e fortalece fios quimicamente tratados.', 
+                category: 'Capilar', 
+                price: 42.50, 
+                img_color: 'c7d2fe', 
+                img_text: 'MÁSCARA',
+                img_real_url: 'https://images.unsplash.com/photo-1557551528-66236b2803b9?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'S013', 
+                name: 'Shampoo Anticaspa Suave (Atacado)', 
+                desc: 'Controla a caspa sem ressecar o couro cabeludo e os fios.', 
+                category: 'Capilar', 
+                price: 26.45, 
+                img_color: 'c7d2fe', 
+                img_text: 'ANTICASPA',
+                img_real_url: 'https://images.unsplash.com/photo-1596706979603-9d48b11a5113?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            
+            // Desodorantes (IDs D014-D016)
+            { 
+                id: 'D014', 
+                name: 'Desodorante Roll-on (Cx. 12 und)', 
+                desc: 'Proteção 24h com fragrância suave e fórmula hipoalergênica.', 
+                category: 'Desodorantes', 
+                price: 12.99, 
+                img_color: 'b3e0ff', 
+                img_text: 'ROLL-ON',
+                img_real_url: 'https://images.unsplash.com/photo-1627966374929-23f2f7b8d80f?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'D015', 
+                name: 'Desodorante Aerossol Active (Cx. 6 und)', 
+                desc: 'Proteção extra e sensação de frescor para o dia todo.', 
+                category: 'Desodorantes', 
+                price: 16.25, 
+                img_color: 'b3e0ff', 
+                img_text: 'AEROSOL',
+                img_real_url: 'https://images.unsplash.com/photo-1596462615456-6f81e59e25d2?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'D016', 
+                name: 'Desodorante Creme Natural', 
+                desc: 'Com minerais, sem alumínio. Fragrância neutra.', 
+                category: 'Desodorantes', 
+                price: 19.95, 
+                img_color: 'b3e0ff', 
+                img_text: 'CREME',
+                img_real_url: 'https://images.unsplash.com/photo-1579603091932-d447d4e3e3b3?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+
+            // Cosméticos (IDs C017-C020)
+            { 
+                id: 'C017', 
+                name: 'Batom Matte Vermelho Vivo (Cx. 10 und)', 
+                desc: 'Alta pigmentação e longa duração, acabamento aveludado.', 
+                category: 'Maquiagem', 
+                price: 21.00, 
+                img_color: 'ffc0cb', 
+                img_text: 'BATOM',
+                img_real_url: 'https://images.unsplash.com/photo-1596462502897-bc5e024223f7?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'C018', 
+                name: 'Primer Facial Fixador (Atacado)', 
+                desc: 'Prepara a pele, minimiza poros e prolonga a maquiagem.', 
+                category: 'Maquiagem', 
+                price: 32.50, 
+                img_color: 'ffc0cb', 
+                img_text: 'PRIMER',
+                img_real_url: 'https://images.unsplash.com/photo-1632785461947-ff2b6c3b6d27?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'C019', 
+                name: 'Pó Compacto Translúcido (Atacado)', 
+                desc: 'Sela a maquiagem e controla a oleosidade sem adicionar cor.', 
+                category: 'Maquiagem', 
+                price: 27.50, 
+                img_color: 'ffc0cb', 
+                img_text: 'PÓ',
+                img_real_url: 'https://images.unsplash.com/photo-1596462502897-bc5e024223f7?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'C020', 
+                name: 'Demaquilante Bifásico Suave', 
+                desc: 'Remove maquiagem à prova d\'água sem agredir a pele.', 
+                category: 'Maquiagem', 
+                price: 19.00, 
+                img_color: 'ffc0cb', 
+                img_text: 'DEMAQ',
+                img_real_url: 'https://images.unsplash.com/photo-1603577742111-e4070a2f582d?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            
+            // Itens extras para > 20
+            { 
+                id: 'P021', 
+                name: 'Perfume Unissex Cânfora (Atacado)', 
+                desc: 'Fragrância herbal e revigorante. Para todos os gêneros.', 
+                category: 'Perfumes', 
+                price: 155.00, 
+                img_color: 'a9a0f7', 
+                img_text: 'UNISSEX',
+                img_real_url: 'https://images.unsplash.com/photo-1627889606558-8549646c071d?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'H022', 
+                name: 'Gel Pós-Barba Aloe Vera (Atacado)', 
+                desc: 'Acalma a pele irritada após o barbear. Sem álcool.', 
+                category: 'Hidratantes', 
+                price: 15.00, 
+                img_color: 'd1e5ff', 
+                img_text: 'PÓS-BARBA',
+                img_real_url: 'https://images.unsplash.com/photo-1619890863032-f2f4d6d39a3b?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'S023', 
+                name: 'Kit Viagem 3 em 1 (Shampoo/Cond/Sab)', 
+                desc: 'Produtos essenciais para viagem, em embalagem miniatura.', 
+                category: 'Kits', 
+                price: 38.90, 
+                img_color: 'c7d2fe', 
+                img_text: 'KIT',
+                img_real_url: 'https://images.unsplash.com/photo-1580210744837-7f37f9b8b33c?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+            { 
+                id: 'D024', 
+                name: 'Desodorante em Pedra Natural', 
+                desc: 'Alternativa natural e duradoura para proteção antiodor.', 
+                category: 'Desodorantes', 
+                price: 22.00, 
+                img_color: 'b3e0ff', 
+                img_text: 'PEDRA',
+                img_real_url: 'https://images.unsplash.com/photo-1579603091932-d447d4e3e3b3?q=80&w=128&h=128&auto=format&fit=crop' 
+            },
+        ];
+
+        // Mapeia os dados do produto por ID para acesso rápido
+        const productMap = productsData.reduce((map, product) => {
+            map[product.id] = product;
+            return map;
+        }, {});
+
+
+        // --- ESTADO GLOBAL DA APLICAÇÃO (SPA) ---
+        let currentPage = 'products'; // 'products' ou 'cart'
+        let cart = {}; // {productId: {id, name, price, quantity}}
+        
+        // Elementos DOM
+        const appContainer = document.getElementById('app-container');
+        const cartCounterDisplay = document.getElementById('cart-counter');
+        const toastPopup = document.getElementById('toast-popup');
+
+
+        // --- FUNÇÕES DE LÓGICA DO CARRINHO ---
+
+        /**
+         * Adiciona ou atualiza a quantidade de um produto no carrinho.
+         * @param {string} productId - ID do produto.
+         * @param {number} quantity - Quantidade a ser adicionada.
+         */
+        const handleAddToCart = (productId, quantity) => {
+            const product = productMap[productId];
+            
+            if (!product) {
+                showToast("Erro: Produto não encontrado!", 'bg-red-600');
+                return;
+            }
+
+            // Garante que a quantidade é um número e >= 1
+            quantity = parseInt(quantity, 10);
+            if (isNaN(quantity) || quantity < 1) {
+                showToast("Quantidade inválida.", 'bg-yellow-600');
+                return;
+            }
+
+            if (cart[productId]) {
+                // Produto já existe, soma a quantidade
+                cart[productId].quantity += quantity;
+            } else {
+                // Novo produto
+                cart[productId] = {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: quantity
+                };
+            }
+            
+            // Atualiza a interface e notifica o usuário
+            updateCartCounter();
+            showToast(`Adicionado ${quantity}x ${product.name} ao carrinho.`, 'bg-indigo-600');
+
+            // Opcional: Se estiver na tela do carrinho, renderiza novamente
+            if (currentPage === 'cart') {
+                renderCartPage();
+            }
+        };
+
+        /**
+         * Remove um item completamente ou ajusta sua quantidade no carrinho.
+         * @param {string} productId - ID do produto.
+         * @param {number} newQuantity - A nova quantidade (0 para remover).
+         */
+        const updateCartItemQuantity = (productId, newQuantity) => {
+             // Garante que a quantidade é um número inteiro
+            newQuantity = parseInt(newQuantity, 10);
+
+            if (isNaN(newQuantity) || newQuantity <= 0) {
+                // Remove o item se a nova quantidade for zero ou menor
+                delete cart[productId];
+                showToast("Produto removido do carrinho.", 'bg-red-500');
+            } else {
+                // Atualiza a quantidade
+                cart[productId].quantity = newQuantity;
+                showToast("Quantidade do produto atualizada.", 'bg-indigo-500');
+            }
+
+            updateCartCounter();
+            renderCartPage(); // Re-renderiza a página do carrinho para mostrar as alterações
+        };
+
+        /**
+         * Calcula a soma total da quantidade de todos os itens no carrinho e atualiza o badge.
+         */
+        const updateCartCounter = () => {
+            const totalItems = Object.values(cart).reduce((total, item) => total + item.quantity, 0);
+            cartCounterDisplay.textContent = totalItems;
+        };
+
+
+        // --- FUNÇÕES DE RENDERIZAÇÃO SPA ---
+
+        /**
+         * Altera a tela visível e atualiza a navegação.
+         * @param {string} page - 'products' ou 'cart'.
+         */
+        const switchPage = (page) => {
+            currentPage = page;
+            
+            // Remove o destaque de navegação anterior e aplica o novo
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('border-white');
+            });
+            document.getElementById(`nav-${page}`).classList.add('border-white');
+
+            // Renderiza o conteúdo da página
+            if (page === 'products') {
+                renderProductList();
+                // Remove o botão fixo de Ação (Encaminhar Pedido) se estiver na página de produtos
+                removeFixedWhatsappButton();
+            } else if (page === 'cart') {
+                renderCartPage();
+            }
+            // Garante que a rolagem volte ao topo ao trocar de página
+            window.scrollTo(0, 0);
+        };
+
+        /**
+         * Gera o HTML da lista de produtos.
+         */
+        const renderProductList = () => {
+            let html = '<h2 class="text-2xl font-bold text-gray-800 mb-6">Catálogo Atacado</h2>';
+            html += '<div class="flex flex-col space-y-6">';
+
+            productsData.forEach(product => {
+                const priceFormatted = product.price.toFixed(2).replace('.', ',');
+                
+                // LÓGICA DE IMAGEM: Prioriza URL real (img_real_url), usa placeholder como fallback
+                const placeholderUrl = `https://placehold.co/120x120/${product.img_color}/1e3a8a?text=${product.img_text}`;
+                const imageSource = product.img_real_url || placeholderUrl;
+
+                html += `
+                    <div class="product-card bg-white p-4 sm:p-6 rounded-xl shadow-md border-t-4 border-indigo-600 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
+                        <!-- Imagem do Produto (usa URL real ou fallback) -->
+                        <!-- A classe object-cover garante que a imagem preencha o espaço sem distorcer -->
+                        <!-- O onerror garante que, se a URL real falhar, ele volta para o placeholder -->
+                        <img src="${imageSource}" onerror="this.onerror=null;this.src='${placeholderUrl}';" alt="${product.name}" class="w-28 h-28 object-cover rounded-lg flex-shrink-0">
+                        
+                        <!-- Detalhes do Produto -->
+                        <div class="flex-1 text-center sm:text-left">
+                            <h3 class="text-xl font-bold text-gray-900 mb-1">${product.name}</h3>
+                            <p class="text-xs font-semibold text-indigo-500 mb-2">${product.category.toUpperCase()}</p>
+                            <p class="text-sm text-gray-500">${product.desc}</p>
+                            <p class="text-2xl font-extrabold price-text mt-2">R$ ${priceFormatted}</p>
+                            <p class="text-xs text-red-500 font-semibold mt-1">* Preço unitário no atacado.</p>
+                        </div>
+                        
+                        <!-- Ação: Quantidade e Botão -->
+                        <div class="flex-shrink-0 w-full sm:w-auto flex flex-col items-center sm:items-end space-y-2 mt-4 sm:mt-0">
+                            <label for="qty-${product.id}" class="text-sm text-gray-600 font-medium">Qtd:</label>
+                            <input type="number" id="qty-${product.id}" min="1" value="1" class="w-20 p-2 border rounded-lg text-center focus:ring-indigo-500 focus:border-indigo-500">
+                            <button class="btn-primary text-white py-2 px-6 rounded-lg font-semibold w-full sm:w-auto shadow-md hover:shadow-lg hover:scale-[1.02] transition" onclick="handleAddToCart('${product.id}', document.getElementById('qty-${product.id}').value)">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            appContainer.innerHTML = html;
+        };
+
+        /**
+         * Gera o HTML da página do carrinho, incluindo controles e totais.
+         */
+        const renderCartPage = () => {
+            const cartItems = Object.values(cart);
+            let totalOrder = 0;
+            let html = '<h2 class="text-2xl font-bold text-gray-800 mb-6">Seu Pedido (Carrinho)</h2>';
+
+            if (cartItems.length === 0) {
+                html += `
+                    <div class="bg-white p-8 rounded-xl shadow-md text-center">
+                        <p class="text-gray-500 text-lg">Seu carrinho está vazio. Adicione itens para revenda!</p>
+                        <button class="mt-4 btn-primary text-white py-2 px-4 rounded-lg font-semibold" onclick="switchPage('products')">
+                            Ver Catálogo
+                        </button>
+                    </div>
+                `;
+                appContainer.innerHTML = html;
+                // Remove o botão fixo de Ação (Encaminhar Pedido) se o carrinho estiver vazio
+                removeFixedWhatsappButton();
+                return;
+            }
+
+            // Lista de Itens do Carrinho
+            html += '<div class="flex flex-col space-y-4 mb-8">';
+            cartItems.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                totalOrder += subtotal;
+                const subtotalFormatted = subtotal.toFixed(2).replace('.', ',');
+                const priceFormatted = item.price.toFixed(2).replace('.', ',');
+
+                html += `
+                    <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-500 flex flex-col space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-800">${item.name}</p>
+                                <p class="text-sm text-gray-500">R$ ${priceFormatted} un.</p>
+                            </div>
+                            <!-- Botão de Remover (Lixeira) -->
+                            <button class="text-gray-400 hover:text-red-500 transition" title="Remover item" onclick="updateCartItemQuantity('${item.id}', 0)">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                            <!-- Controle de Quantidade (Input com botões de +/-) -->
+                            <div class="flex items-center space-x-1">
+                                <button class="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300 transition text-gray-700 font-bold" onclick="updateCartItemQuantity('${item.id}', ${item.quantity - 1})">-</button>
+                                <input type="number" value="${item.quantity}" min="1" 
+                                       class="w-12 text-center p-1 border rounded-lg focus:ring-indigo-500"
+                                       onchange="updateCartItemQuantity('${item.id}', this.value)" />
+                                <button class="w-8 h-8 bg-gray-200 rounded-full hover:bg-gray-300 transition text-gray-700 font-bold" onclick="updateCartItemQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                            </div>
+
+                            <!-- Subtotal -->
+                            <p class="text-lg font-bold text-gray-700">Subtotal: <span class="price-text">R$ ${subtotalFormatted}</span></p>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            // Resumo do Total
+            const totalOrderFormatted = totalOrder.toFixed(2).replace('.', ',');
+            html += `
+                <div class="p-6 bg-indigo-50 rounded-xl shadow-inner mb-24"> <!-- Aumentado mb para acomodar o botão fixo -->
+                    <div class="flex justify-between items-center text-xl font-bold">
+                        <span class="text-gray-700">Total do Pedido:</span>
+                        <span class="price-text text-3xl">R$ ${totalOrderFormatted}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2 text-right">* Valores de atacado. Frete e pagamento a combinar.</p>
+                </div>
+            `;
+            
+            appContainer.innerHTML = html;
+            
+            // Adiciona o botão fixo de Ação (Encaminhar Pedido) no final do body
+            addFixedWhatsappButton(totalOrder);
+        };
+
+        /**
+         * Adiciona o botão fixo de conversão (WhatsApp).
+         * @param {number} totalOrder - Valor total do pedido.
+         */
+        const addFixedWhatsappButton = (totalOrder) => {
+            // Remove o existente se houver
+            removeFixedWhatsappButton();
+
+            // Cria o novo container
+            const fixedBtnContainer = document.createElement('div');
+            fixedBtnContainer.className = 'whatsapp-fixed-btn-container';
+
+            const buttonHtml = `
+                <button class="whatsapp-fixed-btn text-white py-3 rounded-xl font-extrabold text-lg w-full shadow-lg" onclick="generateWhatsAppMessage()">
+                    Encaminhar pedido (R$ ${totalOrder.toFixed(2).replace('.', ',')})
+                </button>
+            `;
+            fixedBtnContainer.innerHTML = buttonHtml;
+            document.body.appendChild(fixedBtnContainer);
+        };
+
+        /**
+         * Remove o botão fixo de Ação (Encaminhar Pedido) se ele existir.
+         */
+        const removeFixedWhatsappButton = () => {
+             const fixedBtn = document.querySelector('.whatsapp-fixed-btn-container');
+            if (fixedBtn) fixedBtn.remove();
+        };
+
+        /**
+         * Gera e abre a mensagem formatada para o WhatsApp.
+         */
+        const generateWhatsAppMessage = () => {
+            const cartItems = Object.values(cart);
+            let totalOrder = 0;
+            let message = "Olá, Grandi Atacadista! Gostaria de fazer o seguinte pedido (Atacado):\n\n";
+
+            message += "--- Detalhes do Pedido ---\n";
+            cartItems.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                totalOrder += subtotal;
+                
+                message += `* ${item.name}\n`;
+                message += `  > Quantidade: ${item.quantity}\n`;
+                message += `  > Vlr. Unitário: R$ ${item.price.toFixed(2).replace('.', ',')}\n`;
+                message += `  > Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
+                message += "---\n";
+            });
+
+            message += `\n*VALOR TOTAL DO PEDIDO: R$ ${totalOrder.toFixed(2).replace('.', ',')}*\n\n`;
+            message += "Por favor, confirme a disponibilidade e as opções de frete/pagamento. Obrigado!";
+
+            // Número de telefone de contato da loja
+            const phoneNumber = "5548998765432"; 
+            
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            
+            // Abre o WhatsApp em uma nova aba
+            window.open(whatsappUrl, '_blank');
+        };
+
+        
+        // --- FUNÇÃO TOAST (POP-UP) ---
+
+        /**
+         * Função para mostrar o Pop-up Rápido (Toast)
+         * Desaparece automaticamente após 1.8 segundos.
+         * @param {string} message - A mensagem a ser exibida.
+         * @param {string} [bgColor='bg-indigo-600'] - Classe de cor de fundo do toast.
+         */
+        function showToast(message, bgColor = 'bg-indigo-600') {
+            // Remove o estado show anterior e classes de cor
+            toastPopup.classList.remove('show');
+            // Reseta classes para a cor padrão antes de aplicar a nova
+            toastPopup.className = 'toast-popup'; 
+            
+            // Atualiza o texto e a cor
+            toastPopup.textContent = message;
+            toastPopup.classList.add(bgColor);
+            
+            // Exibe o toast
+            setTimeout(() => {
+                toastPopup.classList.add('show');
+            }, 10); // Pequeno delay para garantir o reset da animação
+            
+
+            // Define o tempo para esconder (1.8 segundos)
+            setTimeout(() => {
+                toastPopup.classList.remove('show');
+            }, 1800); 
+        }
+
+        // --- INICIALIZAÇÃO DA APLICAÇÃO ---
+        document.addEventListener('DOMContentLoaded', () => {
+             // Define a página inicial como "Produtos" e renderiza
+             switchPage('products');
+             updateCartCounter();
+             showToast("Bem-vindo(a) à Grandi Atacadista!", 'bg-gray-700');
+        });
+    </script>
+</body>
+</html>
