@@ -3,17 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grandi Atacadista - Atacado de perfumaria e cosméticos para revendedores</title>
+    <title>GRUPO GRANDI -</title>
     <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* Esconde o conteúdo inicial */
+.hidden { display: none !important; }
+
+/* Camada que cobre o site todo */
+#login-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #f8fafc; /* Cor de fundo do site */
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Caixa de login estilizada */
+.login-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #e2e8f0;
+}
         /* Define a fonte Inter e cores base */
         body { 
     font-family: 'Inter', sans-serif; 
     /* Um degradê suave que começa azul claro e termina quase branco */
     background: radial-gradient(at 0% 0%, rgba(219, 234, 254, 1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, rgba(239, 246, 255, 1) 0, transparent 50%), 
+                radial-gradient(at 75% 0%, rgba(239, 246, 255, 1) 0, transparent 50%), 
                 radial-gradient(at 100% 0%, rgba(219, 234, 254, 1) 0, transparent 50%);
     background-attachment: fixed;
     background-color: #f8fafc;
@@ -60,7 +84,7 @@
             bottom: 100px; /* Ajustado para não colidir com o ícone flutuante */
             left: 50%;
             transform: translateX(-50%);
-            background-color: #10b981; /* green-500 */
+            background-color: #26264e; /* green-500 */
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -144,8 +168,27 @@
         }
     </style>
 </head>
-<body>
 
+<body>
+<div id="login-overlay">
+    <div class="login-box text-center">
+        <h2 class="text-2xl font-bold text-blue-600 mb-6 uppercase tracking-wider">Acesso Restrito</h2>
+        <div class="space-y-4 text-left">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">CNPJ</label>
+                <input id="cnpj-login" type="text" placeholder="00.000.000/0000-00" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Senha</label>
+                <input id="pass-login" type="password" placeholder="Sua senha" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none transition">
+            </div>
+            <p id="msg-erro" class="text-red-500 text-sm hidden font-medium">Dados inválidos!</p>
+            <button onclick="validarEntrada()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg transition-all active:scale-95">
+                Entrar no Catálogo
+            </button>
+        </div>
+    </div>
+</div>
     <!-- Cabeçalho Principal (Azul) - Nova Identidade -->
     <header id="main-header" class="header-bg text-white py-4 shadow-lg sticky top-0 z-40 transition-opacity duration-300">>
         <div class="container mx-auto px-4 flex justify-between items-center flex-wrap">
@@ -247,6 +290,39 @@
 
     <!-- Script para a lógica de Produtos, Carrinho e SPA -->
     <script>
+        // Função para validar o login e liberar o site
+function validarEntrada() {
+    const cnpj = document.getElementById('cnpj-login').value;
+    const senha = document.getElementById('pass-login').value;
+
+    // Regra simples: CNPJ preenchido e senha "123" (ou a que você preferir)
+    if (cnpj.length > 5 && senha === '123') {
+        // Esconde a tela de login
+        document.getElementById('login-overlay').classList.add('hidden');
+        
+        // Garante que o conteúdo do seu site apareça (caso você tenha colocado 'hidden' nele)
+        // Se o seu site não estiver dentro de um container escondido, a linha abaixo é opcional
+        document.getElementById('site-content')?.classList.remove('hidden');
+        
+        // Salva que o usuário logou para não pedir de novo ao atualizar (opcional)
+        localStorage.setItem('grandi_logado', 'true');
+    } else {
+        document.getElementById('msg-erro').classList.remove('hidden');
+    }
+}
+
+// Verifica se já estava logado ao abrir a página
+window.addEventListener('load', () => {
+    if (localStorage.getItem('grandi_logado') === 'true') {
+        document.getElementById('login-overlay').classList.add('hidden');
+    }
+});
+
+// Função para o botão de "Sair" que você pode colocar no seu Header
+function logout() {
+    localStorage.removeItem('grandi_logado');
+    location.reload();
+}
   // --- 1. BANCO DE DADOS (35 PRODUTOS) ---
 const productsData = [
     { id: '1', name: 'Shampoo Pantene Brilho', price: 11.90, category: 'PANTENE', desc: 'Limpeza profunda e brilho.', img_color: 'fef3c7', img_text: 'Pantene', img_real_url: 'data:image/jpeg;base64,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 ' },
@@ -297,9 +373,25 @@ function filterByCategory(cat) {
     renderProducts();
 }
 
-function switchPage(page) {
-    if (page === 'products') renderProducts();
-    if (page === 'cart') renderCart();
+    function switchPage(page) {
+    currentPage = page;
+    const container = document.getElementById('app-container');
+    
+    // MANTENHA O RESTO DO SEU CÓDIGO IGUAL
+    const searchWrapper = document.getElementById('search-input').parentElement;
+    if (page === 'products') {
+        searchWrapper.classList.remove('hidden');
+    } else {
+        searchWrapper.classList.add('hidden');
+    }
+
+    if (page === 'products') {
+        renderProducts();
+    } else if (page === 'cart') {
+        renderCart();
+    } else if (page === 'checkout') { // <--- ADICIONE ESTE BLOCO AQUI
+        renderCheckout();
+    }
 }
 
 // --- 4. LÓGICA DE QUANTIDADE +/- ---
@@ -327,6 +419,7 @@ function renderProducts() {
             <button onclick="filterByCategory('DOVE')" class="px-4 py-2 rounded-full text-xs font-bold ${currentCategory === 'P&G' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 border'}">P&G</button>
             <button onclick="filterByCategory('DOVE')" class="px-4 py-2 rounded-full text-xs font-bold ${currentCategory === 'REXONA' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 border'}">REXONA</button>
             <button onclick="filterByCategory('DOVE')" class="px-4 py-2 rounded-full text-xs font-bold ${currentCategory === 'DOVE' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 border'}">DOVE</button>
+            <button onclick="filterByCategory('COSMÉTICOS')" class="px-4 py-2 rounded-full text-xs font-bold ${currentCategory === 'COSMÉTICOS' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 border'}">COSMÉTICOS</button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     `;
@@ -424,9 +517,9 @@ html += `
             <span class="font-bold text-gray-700">TOTAL:</span>
             <span class="font-black text-indigo-700">R$ ${totalGeral.toFixed(2).replace('.', ',')}</span>
         </div>
-        <button onclick="enviarPedidoWhatsApp()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-xl hover:bg-green-700 transition flex items-center justify-center gap-2">
-            ENCAMINHAR MEU PEDIDO
-        </button>
+<button onclick="switchPage('checkout')" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-700 transition-all active:scale-95 flex items-center justify-center gap-2">
+    <span>Continuar para Identificação</span>
+</button>
     </div>
 `;
 container.innerHTML = html;
@@ -492,6 +585,59 @@ function enviarPedidoWhatsApp() {
     // Cria o link e abre o WhatsApp
     const url = `https://wa.me/${554884942017}?text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
+}
+    // NOVA FUNÇÃO: ABA DE CADASTRO
+function renderCheckout() {
+    const container = document.getElementById('app-container');
+    container.innerHTML = `
+        <div class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+            <h2 class="text-2xl font-extrabold text-blue-600 mb-6 text-center italic">IDENTIFICAÇÃO</h2>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 ml-1 text-left">NOME DO RESPONSÁVEL</label>
+                    <input type="text" id="cad-nome" placeholder="Ex: João Silva" class="w-full p-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 ml-1 text-left">CNPJ</label>
+                    <input type="text" id="cad-cnpj" placeholder="00.000.000/0000-00" class="w-full p-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1 ml-1 text-left">NOME DO COMÉRCIO</label>
+                    <input type="text" id="cad-comercio" placeholder="Ex: Mercado Central" class="w-full p-4 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all">
+                </div>
+                
+                <button onclick="finalizarComCadastro()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-700 shadow-xl transition-all active:scale-95 mt-4 text-lg">
+                    CONCLUIR E ENVIAR WHATSAPP
+                </button>
+        </div>
+    `;
+}
+
+// NOVA FUNÇÃO: ENVIO COM DADOS
+function finalizarComCadastro() {
+    const nome = document.getElementById('cad-nome').value;
+    const cnpj = document.getElementById('cad-cnpj').value;
+    const comercio = document.getElementById('cad-comercio').value;
+
+    if (!nome || !cnpj || !comercio) {
+        alert("⚠️ Por favor, preencha todos os campos para finalizar seu pedido!");
+        return;
+    }
+
+    let mensagem = `*NOVO PEDIDO - ${comercio.toUpperCase()}*\n`;
+    mensagem += `*Responsável:* ${nome}\n`;
+    mensagem += `*CNPJ:* ${cnpj}\n`;
+    mensagem += `--------------------------\n\n`;
+
+    cart.forEach(item => {
+        mensagem += `• *${item.quantity}x* ${item.name}\n`;
+        mensagem += `  _Subtotal: R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}_\n\n`;
+    });
+
+    const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    mensagem += `*TOTAL DO PEDIDO: R$ ${total.toFixed(2).replace('.', ',')}*`;
+
+    window.open(`https://wa.me/554884942017?text=${encodeURIComponent(mensagem)}`);
 }
     </script>
 </body>
