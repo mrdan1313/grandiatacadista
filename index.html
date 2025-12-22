@@ -297,38 +297,27 @@
 
 async function fetchImageByBarcode(barcode) {
     if (imageCache[barcode]) return imageCache[barcode];
-
-    // A API ignora códigos curtos. Teste com um código real (ex: 789...)
-    if (!barcode || barcode.length < 8) return null;
+    
+    const produto = productsData.find(p => p.barcode === barcode);
+    if (!produto) return 'https://via.placeholder.com/150?text=Sem+Cadastro';
 
     try {
-        const apiKey = 'swy1g3brvjdcx1j4xd7irazxpfme00'; 
-        const apiUrl = `https://api.barcodelookup.com/v3/products?barcode=${barcode}&key=${apiKey}`;
-        
-        // Proxy para evitar o erro de CORS no GitHub
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
+        const query = encodeURIComponent(produto.name + " embalagem");
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://duckduckgo.com/pd.js?q=${query}&kl=br-pt`)}`;
 
-        const response = await fetch(proxyUrl);
+        const response = await fetch(url);
         const container = await response.json();
-        
-        // A API AllOrigins retorna o resultado como String dentro de 'contents'
         const data = JSON.parse(container.contents);
 
-        // EXTRAÇÃO CORRETA: O Barcode Lookup envia um array 'products'
-        if (data && data.products && data.products.length > 0) {
-            const product = data.products[0];
-            // Verifica se existe o array de imagens e pega a primeira
-            const imageUrl = (product.images && product.images.length > 0) ? product.images[0] : null;
-            
-            if (imageUrl) {
-                imageCache[barcode] = imageUrl;
-                return imageUrl;
-            }
+        if (data && data.results && data.results.length > 0) {
+            const imgUrl = data.results[0].image;
+            imageCache[barcode] = imgUrl;
+            return imgUrl;
         }
     } catch (error) {
-        console.error("Erro técnico na API:", error);
+        console.error("Erro na imagem de:", barcode);
     }
-    return null;
+    return 'https://via.placeholder.com/150?text=' + encodeURIComponent(produto.name);
 }
 
 
@@ -480,14 +469,35 @@ function changeQty(id, delta) {
 }
 
 // --- 5. RENDERIZAÇÃO DA VITRINE ---
-function renderProducts() {
-    const container = document.getElementById('app-container');
-    const filtered = productsData.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(currentSearchTerm) || p.desc.toLowerCase().includes(currentSearchTerm);
-        const matchesCat = currentCategory === 'all' || p.category === currentCategory;
-        return matchesSearch && matchesCat;
-    });
+function renderProducts(productsToRender) {
+    const grid = document.getElementById('products-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
 
+    productsToRender.forEach(product => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col";
+        
+        // Criamos o HTML com um "Carregando..." no lugar da foto
+        card.innerHTML = `
+            <div id="img-container-${product.id}" class="h-40 mb-3 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                <div class="animate-pulse text-xs text-gray-400">Buscando foto...</div>
+            </div>
+            <h3 class="text-sm font-bold text-gray-800 h-10 overflow-hidden">${product.name}</h3>
+            <p class="text-blue-600 font-bold mt-2">R$ ${product.price.toFixed(2)}</p>
+            <button onclick="addToCart('${product.id}')" class="mt-3 bg-blue-600 text-white py-2 rounded-lg font-bold">Adicionar</button>
+        `;
+        grid.appendChild(card);
+
+        // BUSCA A IMAGEM EM SEGUNDO PLANO (Não trava o site)
+        fetchImageByBarcode(product.barcode).then(imgSrc => {
+            const container = document.getElementById(`img-container-${product.id}`);
+            if (container) {
+                container.innerHTML = `<img src="${imgSrc}" class="w-full h-full object-contain">`;
+            }
+        });
+    });
+}
     let html = `
         <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
             <button onclick="filterByCategory('all')" class="px-4 py-2 rounded-full text-xs font-bold ${currentCategory === 'all' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-600 border'}">TODOS</button>
@@ -719,4 +729,5 @@ function finalizarComCadastro() {
     </script>
 </body>
 </html>
+
 
