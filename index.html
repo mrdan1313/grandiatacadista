@@ -298,42 +298,38 @@
 async function fetchImageByBarcode(barcode) {
     if (imageCache[barcode]) return imageCache[barcode];
 
+    // A API ignora códigos curtos. Teste com um código real (ex: 789...)
+    if (!barcode || barcode.length < 8) return null;
+
     try {
-        // 1. SUA CHAVE AQUI (Certifique-se de que não há espaços antes ou depois)
         const apiKey = 'swy1g3brvjdcx1j4xd7irazxpfme00'; 
-        const url = `https://api.barcodelookup.com/v3/products?barcode=${barcode}&key=${apiKey}`;
-
-        // 2. USANDO PROXY: Essencial para não dar erro de bloqueio no navegador
-        const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+        const apiUrl = `https://api.barcodelookup.com/v3/products?barcode=${barcode}&key=${apiKey}`;
         
-        if (!res.ok) {
-            console.error('API respondeu com erro:', res.status);
-            return null;
-        }
+        // Proxy para evitar o erro de CORS no GitHub
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
 
-        const data = await res.json();
+        const response = await fetch(proxyUrl);
+        const container = await response.json();
+        
+        // A API AllOrigins retorna o resultado como String dentro de 'contents'
+        const data = JSON.parse(container.contents);
 
-        // 3. LÓGICA DE EXTRAÇÃO: A Barcode Lookup coloca as fotos dentro de um array 'products'
+        // EXTRAÇÃO CORRETA: O Barcode Lookup envia um array 'products'
         if (data && data.products && data.products.length > 0) {
             const product = data.products[0];
+            // Verifica se existe o array de imagens e pega a primeira
+            const imageUrl = (product.images && product.images.length > 0) ? product.images[0] : null;
             
-            // Tenta pegar a imagem principal, se não tiver, tenta o thumbnail
-            const imageUrl = (product.images && product.images.length > 0) 
-                             ? product.images[0] 
-                             : product.thumbnail;
-
             if (imageUrl) {
                 imageCache[barcode] = imageUrl;
                 return imageUrl;
             }
         }
-    } catch (err) {
-        console.error('Erro ao conectar na API:', err);
+    } catch (error) {
+        console.error("Erro técnico na API:", error);
     }
-
-    return null; // Retorna nulo se nada for encontrado
+    return null;
 }
-
 
 
        // Função para validar o login e liberar o site
@@ -723,3 +719,4 @@ function finalizarComCadastro() {
     </script>
 </body>
 </html>
+
