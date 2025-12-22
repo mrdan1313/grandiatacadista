@@ -296,9 +296,8 @@ function validarEntrada() {
     const senha = document.getElementById('pass-login').value;
 
     // Regra simples: CNPJ preenchido e senha "123" (ou a que você preferir)
-    if (cnpj.length > 5 && senha === '123') {
-        // Esconde a tela de login
-        document.getElementById('login-overlay').classList.add('hidden');
+    if (cnpj.length > 5 && senha === '123')
+        
         
         // Garante que o conteúdo do seu site apareça (caso você tenha colocado 'hidden' nele)
         // Se o seu site não estiver dentro de um container escondido, a linha abaixo é opcional
@@ -371,8 +370,7 @@ const productsData = [
 
 { id: '42', name: 'ABS INTERNO OB MEDIO L10P8', price: 0, category: 'OB', desc: 'Absorvente Interno OB Médio Leve 10 Pague 8.', img_color: 'e5e7eb', img_text: 'OB', barcode: '7891010886547' },
 { id: '43', name: 'ABS INTERNO OB MEDIO PRO COMF C/8', price: 0, category: 'OB', desc: 'Absorvente Interno OB Médio Pro Comfort 8 unidades.', img_color: 'e5e7eb', img_text: 'OB', barcode: '7891010245603' },
-{ id: '44', name: 'ABS INTERNO OB MINI PRO COMF C/8', price: 0, category: 'OB', desc: 'Absorvente Interno OB Mini Pro Comfort 8 unidades.', img_color: 'e5e7eb', img_text: 'OB', barcode: '7891010245597' },
-{ id: '45', name: 'ABS INTERNO OB SUPER LV10P8', price: 0, category: 'OB', desc: 'Absorvente Interno OB Super Leve 10 Pague 8.', img_color: 'e5e7eb', img_text: 'OB', barcode: '7891010010577' },
+{ id: '44', name: 'ABS INTERNO OB MINI PRO COMF C/8', price: 0, category: 'OB', desc: 'Absorvente Interno OB Mini Pro Comfort 8 unidades.', img_color: 'e5e7eb', img_text: 'OB', barcode: '7891010245597' },{ id: '45', name: 'ABS INTERNO OB SUPER LV10P8', price: 0, category: 'OB', desc: 'Absorvente Interno OB Super Leve 10 Pague 8.', img_color: 'e5e7eb', img_text: 'OB', barcode: '7891010010577' },
 ];
 
 
@@ -667,4 +665,5 @@ function finalizarComCadastro() {
     </script>
 </body>
 </html>
+
 
